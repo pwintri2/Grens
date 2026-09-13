@@ -6,7 +6,11 @@ Een rustige, vriendelijke webapp die korte zinnen geeft om appjes, verzoeken of 
 
 *Een nee mag ook een hele zin zijn.*
 
-![De Nee-zegger Script Generator: situatie Familie, toon Warm, drie zinnen met een hartje om te bewaren](docs/screenshot-nl.png)
+De huidige interface met voorbeeldgegevens. Klik op een afbeelding voor de volledige grootte.
+
+| Zinnen maken | Mijn zinnen | Mijn dagritme en back-up |
+| --- | --- | --- |
+| <a href="docs/screenshot-nl.png"><img src="docs/screenshot-nl.png" alt="Grens: zinnen maken met situatie en toon, en navigatie naar Mijn zinnen en Mijn dagritme." width="240"></a> | <a href="docs/screenshot-zinnen-nl.png"><img src="docs/screenshot-zinnen-nl.png" alt="Mijn zinnen: eigen teksten met categorie, toon, favorieten en zoekfilters." width="240"></a> | <a href="docs/screenshot-dagritme-nl.png"><img src="docs/screenshot-dagritme-nl.png" alt="Mijn dagritme: dagelijkse momenten afvinken en eigen zinnen en ritme exporteren of importeren als JSON." width="240"></a> |
 
 [English version below](#grens--no-sayer-script-generator-english)
 
@@ -113,7 +117,11 @@ A calm, friendly web app that gives you short phrases to decline messages, reque
 
 *'No' can be a complete sentence.*
 
-<img src="docs/screenshot-en.png" alt="The No-Sayer Script Generator on a phone: situation Social, tone Short, three phrases" width="390">
+The current interface with example data. Click an image to view it at full size.
+
+| Make phrases | My phrases | My daily rhythm and backup |
+| --- | --- | --- |
+| <a href="docs/screenshot-en.png"><img src="docs/screenshot-en.png" alt="Grens: generate phrases using a situation and tone, with navigation to My phrases and My daily rhythm." width="240"></a> | <a href="docs/screenshot-zinnen-en.png"><img src="docs/screenshot-zinnen-en.png" alt="My phrases: personal text with categories, tones, favourites and search filters." width="240"></a> | <a href="docs/screenshot-dagritme-en.png"><img src="docs/screenshot-dagritme-en.png" alt="My daily rhythm: check off daily moments and export or import personal phrases and rhythm as JSON." width="240"></a> |
 
 ## What it does
 
