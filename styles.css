@@ -406,3 +406,38 @@ svg.icon { flex: none; }
   .icon-btn[aria-pressed="true"] .icon--heart path { fill: CanvasText; }
   .btn--saved[aria-expanded="true"] { border-width: 3px; }
 }
+
+/* Eigen zinnen en dagritme: bestaande kleuren, focus en mobiele basis. */
+.section-nav { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin: 0 0 1.4rem; }
+.section-nav a { color: var(--green-700); padding: .5rem 0; font-weight: 600; text-underline-offset: .25rem; }
+.personal-section { margin-top: 2.5rem; display: grid; gap: 1rem; scroll-margin-top: 1.5rem; }
+.personal-section .section-header { margin: 0; }
+.personal-section .section-intro { margin-top: -.4rem; }
+.personal-form { border-color: var(--green-500); }
+.personal-form h3, .moment-title { font-size: 1rem; color: var(--green-900); overflow-wrap: anywhere; }
+.field-grid { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+.field input, .field select {
+  font: inherit; color: inherit; min-width: 0; width: 100%; max-width: 100%;
+  border: 1.5px solid #7f8a82; border-radius: var(--radius-sm); background: #fff;
+  padding: .65rem .7rem; min-height: 2.8rem;
+}
+.field textarea[readonly] { background: var(--cream-2); }
+.check-label { display: inline-flex; align-items: center; gap: .55rem; min-height: 2.75rem; cursor: pointer; }
+.check-label input { appearance: auto; width: 1.2rem; height: 1.2rem; flex: none; accent-color: var(--green-700); margin: 0; }
+.day-choices { display: flex; gap: .3rem .8rem; flex-wrap: wrap; }
+.day-choice { font-size: .95rem; }
+.date-toolbar { display: flex; gap: .75rem; align-items: flex-end; flex-wrap: wrap; }
+.date-toolbar .field { flex: 1; min-width: 0; }
+.schedule-management summary { cursor: pointer; color: var(--green-900); font-weight: 600; padding: .25rem 0; }
+.schedule-management[open] > * + * { margin-top: 1rem; }
+.day-moment__top { display: flex; gap: .8rem; align-items: baseline; }
+.moment-time { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--terra-700); flex: none; }
+.day-moment.is-complete { border-color: var(--green-500); background: var(--green-100); }
+.moment--inactive { border-style: dashed; background: var(--cream-2); }
+.form-error { color: var(--terra-700); font-weight: 600; overflow-wrap: anywhere; }
+.personal-warning { margin-top: 1.5rem; border-color: var(--terra-700); }
+.personal-section .btn[aria-pressed="true"] { background: var(--terra-100); border-color: var(--terra-700); color: var(--terra-700); }
+.personal-section .btn:disabled { opacity: .65; cursor: wait; }
+.personal-section .card { min-width: 0; }
+@media (min-width: 30rem) { .field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (forced-colors: active) { .day-moment.is-complete { border-width: 3px; } }

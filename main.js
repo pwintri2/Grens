@@ -367,6 +367,7 @@
     updateSavedCount();
     renderSaved();
     if (state.results.length) renderResults();
+    document.dispatchEvent(new Event('grens:language'));
   }
 
   function setLanguage(lang, fromUser) {
