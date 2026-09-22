@@ -51,6 +51,9 @@
       'ui.footerLocal': 'Bewaarde zinnen blijven op dit apparaat. Er wordt niets verstuurd.',
       'ui.langAnnounce': 'Taal: Nederlands',
       'ui.contentMissing': 'De zinnen konden niet worden geladen. Controleer of phrases.js naast index.html staat.',
+      'ui.tabsLabel': 'Onderdelen',
+      'ui.tabNo': 'Nee zeggen',
+      'ui.tabRhythm': 'Dagritme',
       'tones.warm.label': 'Warm',
       'tones.warm.hint': 'vriendelijk en begripvol',
       'tones.kort.label': 'Kort',
@@ -105,6 +108,9 @@
       'ui.footerLocal': 'Saved phrases stay on this device. Nothing is sent anywhere.',
       'ui.langAnnounce': 'Language: English',
       'ui.contentMissing': 'The phrases could not be loaded. Check that phrases.js sits next to index.html.',
+      'ui.tabsLabel': 'Sections',
+      'ui.tabNo': 'Saying no',
+      'ui.tabRhythm': 'Daily rhythm',
       'tones.warm.label': 'Warm',
       'tones.warm.hint': 'friendly and understanding',
       'tones.kort.label': 'Short',
@@ -164,7 +170,9 @@
     resultsList: document.getElementById('results-list'),
     announce: document.getElementById('announce'),
     toast: document.getElementById('toast'),
-    cardTemplate: document.getElementById('card-template')
+    cardTemplate: document.getElementById('card-template'),
+    tabs: Array.prototype.slice.call(document.querySelectorAll('[role="tab"]')),
+    tabPanels: Array.prototype.slice.call(document.querySelectorAll('[role="tabpanel"]'))
   };
 
   /* ---------- Toestand ---------- */
@@ -232,6 +240,36 @@
 
   function prefersReducedMotion() {
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
+
+  /* ---------- Tabbladen ---------- */
+  function selectTab(tab) {
+    el.tabs.forEach(function (button) {
+      var isActive = button === tab;
+      button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      button.classList.toggle('is-active', isActive);
+      button.tabIndex = isActive ? 0 : -1;
+      var panelId = button.getAttribute('aria-controls');
+      if (!panelId) return;
+      var panel = document.getElementById(panelId);
+      if (panel) panel.hidden = !isActive;
+    });
+  }
+
+  function activateTab(tab) {
+    selectTab(tab);
+    try { tab.focus({ preventScroll: true }); } catch (error) { tab.focus(); }
+  }
+
+  function showTab(tabId) {
+    var tab = document.getElementById(tabId);
+    if (tab && tab.getAttribute('aria-selected') !== 'true') selectTab(tab);
+  }
+
+  function bindTabTo(selector, tabId) {
+    var node = document.querySelector(selector);
+    if (!node) return;
+    node.addEventListener('click', function () { showTab(tabId); });
   }
 
   function capitalizeFirst(text) {
@@ -360,6 +398,9 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (node) {
       node.textContent = t(node.getAttribute('data-i18n'));
     });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-i18n-aria]'), function (node) {
+      node.setAttribute('aria-label', t(node.getAttribute('data-i18n-aria')));
+    });
     el.langButtons.forEach(function (button) {
       button.setAttribute('aria-pressed', button.getAttribute('data-lang') === state.lang ? 'true' : 'false');
     });
@@ -367,6 +408,7 @@
     updateSavedCount();
     renderSaved();
     if (state.results.length) renderResults();
+    document.dispatchEvent(new Event('grens:language'));
   }
 
   function setLanguage(lang, fromUser) {
@@ -675,6 +717,7 @@
 
   function toggleSavedSection(open) {
     var willOpen = typeof open === 'boolean' ? open : el.savedSection.hidden;
+    if (willOpen) showTab('tab-no');
     el.savedSection.hidden = !willOpen;
     el.savedToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     if (willOpen) {
@@ -719,6 +762,28 @@
   el.surprise.addEventListener('click', surprise);
   el.savedToggle.addEventListener('click', function () { toggleSavedSection(); });
   el.savedClose.addEventListener('click', function () { toggleSavedSection(false); });
+
+  el.tabs.forEach(function (tab, index) {
+    tab.addEventListener('click', function () { selectTab(tab); });
+    tab.addEventListener('keydown', function (event) {
+      var key = event.key;
+      if (key !== 'ArrowRight' && key !== 'ArrowLeft' && key !== 'ArrowDown' && key !== 'ArrowUp' && key !== 'Home' && key !== 'End') return;
+      event.preventDefault();
+      var last = el.tabs.length - 1;
+      var next = tab;
+      if (key === 'ArrowRight' || key === 'ArrowDown') next = el.tabs[index === last ? 0 : index + 1];
+      else if (key === 'ArrowLeft' || key === 'ArrowUp') next = el.tabs[index === 0 ? last : index - 1];
+      else if (key === 'Home') next = el.tabs[0];
+      else if (key === 'End') next = el.tabs[last];
+      activateTab(next);
+    });
+  });
+  bindTabTo('#generate', 'tab-no');
+  bindTabTo('#surprise', 'tab-no');
+  bindTabTo('#custom-add', 'tab-no');
+  bindTabTo('#schedule-add', 'tab-rhythm');
+  bindTabTo('#personal-export', 'tab-rhythm');
+  bindTabTo('#personal-import-button', 'tab-rhythm');
 
   /* ---------- Start ---------- */
   state.lang = loadLang();

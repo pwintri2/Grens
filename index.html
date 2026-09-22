@@ -32,95 +32,186 @@
   </header>
 
   <main id="main" class="container">
-    <section class="hero">
-      <h1 class="hero__title" data-i18n="ui.title">Een nee mag ook een hele zin zijn.</h1>
-      <p class="hero__lead" data-i18n="ui.lead">Kies een situatie en een toon. Je krijgt drie korte zinnen om een verzoek af te wijzen, zonder lange uitleg en zonder schuldgevoel.</p>
-    </section>
+    <div class="tabs" role="tablist" aria-label="Onderdelen" data-i18n-aria="ui.tabsLabel">
+      <button type="button" role="tab" id="tab-no" class="tab is-active" aria-selected="true" aria-controls="panel-no" data-i18n="ui.tabNo">Nee zeggen</button>
+      <button type="button" role="tab" id="tab-rhythm" class="tab" aria-selected="false" aria-controls="panel-rhythm" data-i18n="ui.tabRhythm" tabindex="-1">Dagritme</button>
+    </div>
 
-    <section id="saved" class="panel panel--saved" aria-labelledby="saved-heading" hidden>
+    <div id="personal-storage-warning" class="empty personal-warning" role="alert" hidden></div>
+
+    <div id="panel-no" role="tabpanel" aria-labelledby="tab-no" class="tab-panel">
+      <section class="hero">
+        <h1 class="hero__title" data-i18n="ui.title">Een nee mag ook een hele zin zijn.</h1>
+        <p class="hero__lead" data-i18n="ui.lead">Kies een situatie en een toon. Je krijgt drie korte zinnen om een verzoek af te wijzen, zonder lange uitleg en zonder schuldgevoel.</p>
+      </section>
+
+      <section id="saved" class="panel panel--saved" aria-labelledby="saved-heading" hidden>
+        <div class="section-header">
+          <h2 id="saved-heading" class="section-title" tabindex="-1">
+            <span data-i18n="ui.savedHeading">Bewaarde zinnen</span>
+            <span class="section-title__count">(<span id="saved-count">0</span>)</span>
+          </h2>
+          <button type="button" class="btn btn--ghost btn--small" id="saved-close" data-i18n="ui.close">Sluiten</button>
+        </div>
+        <div id="saved-empty" class="empty">
+          <p data-i18n="ui.savedEmpty">Nog niets bewaard. Tik op het hartje bij een zin om die hier te bewaren.</p>
+        </div>
+        <ul id="saved-list" class="cards" hidden></ul>
+      </section>
+
+      <form id="generator" class="panel" novalidate>
+        <fieldset class="choice">
+          <legend class="choice__legend" data-i18n="ui.situationLegend">Situatie</legend>
+          <div class="pills pills--situation" id="situation-pills">
+            <label class="pill is-selected">
+              <input type="radio" name="situation" value="werk" checked>
+              <span class="pill__label" data-i18n="situations.werk.label">Werk</span>
+            </label>
+            <label class="pill">
+              <input type="radio" name="situation" value="sociaal">
+              <span class="pill__label" data-i18n="situations.sociaal.label">Sociaal</span>
+            </label>
+            <label class="pill">
+              <input type="radio" name="situation" value="familie">
+              <span class="pill__label" data-i18n="situations.familie.label">Familie</span>
+            </label>
+            <label class="pill">
+              <input type="radio" name="situation" value="afspraak">
+              <span class="pill__label" data-i18n="situations.afspraak.label">Afspraak</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="field">
+          <label for="topic" class="field__label" data-i18n="ui.topicLabel">Waar gaat het verzoek over?</label>
+          <p id="topic-hint" class="field__hint" data-i18n="ui.topicHint">Mag leeg blijven. Schrijf kort op wat er van je gevraagd wordt.</p>
+          <textarea id="topic" name="topic" rows="2" maxlength="140" autocomplete="off" autocapitalize="off" spellcheck="true"
+                    aria-describedby="topic-hint topic-count"
+                    placeholder="Bijvoorbeeld: een extra dienst draaien"></textarea>
+          <p id="topic-count" class="field__count"><span id="topic-count-value">0</span>/140</p>
+        </div>
+
+        <fieldset class="choice">
+          <legend class="choice__legend" data-i18n="ui.toneLegend">Toon</legend>
+          <div class="pills pills--tone" id="tone-pills">
+            <label class="pill pill--tone is-selected">
+              <input type="radio" name="tone" value="warm" checked>
+              <span class="pill__label" data-i18n="tones.warm.label">Warm</span>
+              <span class="pill__hint" data-i18n="tones.warm.hint">vriendelijk en begripvol</span>
+            </label>
+            <label class="pill pill--tone">
+              <input type="radio" name="tone" value="kort">
+              <span class="pill__label" data-i18n="tones.kort.label">Kort</span>
+              <span class="pill__hint" data-i18n="tones.kort.hint">één of twee zinnen</span>
+            </label>
+            <label class="pill pill--tone">
+              <input type="radio" name="tone" value="duidelijk">
+              <span class="pill__label" data-i18n="tones.duidelijk.label">Duidelijk</span>
+              <span class="pill__hint" data-i18n="tones.duidelijk.hint">een heldere grens</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="submit" class="btn btn--primary" id="generate" data-i18n="ui.generate">Geef me woorden</button>
+          <button type="button" class="btn btn--accent" id="surprise" data-i18n="ui.surprise">Verras me</button>
+        </div>
+      </form>
+
+      <section id="results" class="results" aria-labelledby="results-heading">
+        <div class="section-header section-header--stack">
+          <h2 id="results-heading" class="section-title" tabindex="-1" data-i18n="ui.resultsEmptyHeading">Jouw zinnen</h2>
+          <p id="results-sub" class="results__sub" hidden></p>
+          <p id="results-note" class="results__note" hidden></p>
+        </div>
+        <div id="results-empty" class="empty empty--results">
+          <p data-i18n="ui.resultsEmpty">Hier verschijnen straks drie zinnen. Kies een situatie en een toon, en druk op ‘Geef me woorden’. Je hoeft niets in te vullen.</p>
+        </div>
+        <ul id="results-list" class="cards" hidden></ul>
+      </section>
+
+      <section id="custom" class="personal-section" aria-labelledby="custom-heading">
+        <div class="section-header">
+          <h2 id="custom-heading" class="section-title" tabindex="-1" data-personal-i18n="customHeading">Mijn zinnen</h2>
+          <button type="button" id="custom-add" class="btn btn--primary btn--small" aria-expanded="false" aria-controls="custom-form" data-personal-i18n="addPhrase">Zin toevoegen</button>
+        </div>
+        <p class="field__hint section-intro" data-personal-i18n="customIntro">Jouw eigen woorden. Gegenereerde zinnen met een hartje vind je bij Bewaard.</p>
+        <form id="custom-form" class="panel personal-form" hidden novalidate>
+          <h3 id="custom-form-heading" data-personal-i18n="addPhrase">Zin toevoegen</h3>
+          <div class="field">
+            <label for="custom-text" class="field__label" data-personal-i18n="phraseText">Jouw zin</label>
+            <textarea id="custom-text" rows="3" maxlength="500" required aria-describedby="custom-text-hint"></textarea>
+            <p id="custom-text-hint" class="field__hint" data-personal-i18n="textHint">Maximaal 500 tekens. Je tekst blijft zoals jij hem schrijft, ook na een taalwisseling.</p>
+          </div>
+          <div class="field-grid">
+            <div class="field"><label for="custom-category" class="field__label" data-personal-i18n="category">Categorie</label><select id="custom-category"></select></div>
+            <div class="field"><label for="custom-tone" class="field__label" data-personal-i18n="tone">Toon</label><select id="custom-tone"></select></div>
+          </div>
+          <label class="check-label"><input type="checkbox" id="custom-favorite"><span data-personal-i18n="favorite">Favoriet</span></label>
+          <p id="custom-error" class="form-error" role="alert" hidden></p>
+          <div class="actions">
+            <button type="submit" class="btn btn--primary" data-personal-i18n="save">Opslaan</button>
+            <button type="button" id="custom-cancel" class="btn btn--ghost" data-personal-i18n="cancel">Annuleren</button>
+          </div>
+        </form>
+        <div class="panel personal-filters">
+          <div class="field"><label for="custom-search" class="field__label" data-personal-i18n="search">Zoek in mijn zinnen</label><input type="search" id="custom-search" maxlength="500" aria-controls="custom-list"></div>
+          <div class="field-grid">
+            <div class="field"><label for="custom-filter-category" class="field__label" data-personal-i18n="category">Categorie</label><select id="custom-filter-category"></select></div>
+            <div class="field"><label for="custom-filter-tone" class="field__label" data-personal-i18n="tone">Toon</label><select id="custom-filter-tone"></select></div>
+          </div>
+          <label class="check-label"><input type="checkbox" id="custom-filter-favorite"><span data-personal-i18n="favoritesOnly">Alleen favorieten</span></label>
+        </div>
+        <p id="custom-count" class="field__hint" role="status"></p>
+        <p id="custom-empty" class="empty"></p>
+        <ul id="custom-list" class="cards"></ul>
+      </section>
+    </div>
+
+    <div id="panel-rhythm" role="tabpanel" aria-labelledby="tab-rhythm" class="tab-panel" hidden>
+      <section id="schedule" class="personal-section" aria-labelledby="schedule-heading">
       <div class="section-header">
-        <h2 id="saved-heading" class="section-title" tabindex="-1">
-          <span data-i18n="ui.savedHeading">Bewaarde zinnen</span>
-          <span class="section-title__count">(<span id="saved-count">0</span>)</span>
-        </h2>
-        <button type="button" class="btn btn--ghost btn--small" id="saved-close" data-i18n="ui.close">Sluiten</button>
+        <h2 id="schedule-heading" class="section-title" tabindex="-1" data-personal-i18n="scheduleHeading">Mijn dagritme</h2>
+        <button type="button" id="schedule-add" class="btn btn--primary btn--small" aria-expanded="false" aria-controls="schedule-form" data-personal-i18n="addMoment">Moment toevoegen</button>
       </div>
-      <div id="saved-empty" class="empty">
-        <p data-i18n="ui.savedEmpty">Nog niets bewaard. Tik op het hartje bij een zin om die hier te bewaren.</p>
+      <p class="field__hint section-intro" data-personal-i18n="scheduleIntro">Een rustig moment voor jezelf. Bekijk je dag en vink af wat je hebt gedaan.</p>
+      <form id="schedule-form" class="panel personal-form" hidden novalidate>
+        <h3 id="schedule-form-heading" data-personal-i18n="addMoment">Moment toevoegen</h3>
+        <div class="field-grid">
+          <div class="field"><label for="schedule-time" class="field__label" data-personal-i18n="time">Tijd</label><input type="time" id="schedule-time" required></div>
+          <div class="field"><label for="schedule-title" class="field__label" data-personal-i18n="title">Titel</label><input type="text" id="schedule-title" maxlength="100" required></div>
+        </div>
+        <div class="field"><label for="schedule-phrase" class="field__label" data-personal-i18n="linkPhrase">Gebruik een eigen zin</label><select id="schedule-phrase"></select><p class="field__hint" data-personal-i18n="linkHint">Een gekoppelde zin verandert mee. Verwijder je de zin, dan blijft de laatste tekst bij dit moment staan.</p></div>
+        <div class="field"><label for="schedule-text" class="field__label" data-personal-i18n="momentText">Tekst voor dit moment</label><textarea id="schedule-text" rows="3" maxlength="500" required aria-describedby="schedule-text-hint"></textarea><p id="schedule-text-hint" class="field__hint" data-personal-i18n="momentHint">Maximaal 500 tekens.</p></div>
+        <fieldset class="choice"><legend class="field__label" data-personal-i18n="repeatDays">Herhalen op</legend><div id="schedule-days" class="day-choices"></div></fieldset>
+        <label class="check-label"><input type="checkbox" id="schedule-enabled" checked><span data-personal-i18n="enabled">Actief</span></label>
+        <p id="schedule-error" class="form-error" role="alert" hidden></p>
+        <div class="actions"><button type="submit" class="btn btn--primary" data-personal-i18n="save">Opslaan</button><button type="button" id="schedule-cancel" class="btn btn--ghost" data-personal-i18n="cancel">Annuleren</button></div>
+      </form>
+      <div class="panel day-overview">
+        <div class="date-toolbar"><div class="field"><label for="schedule-date" class="field__label" data-personal-i18n="dayOverview">Dagoverzicht</label><input type="date" id="schedule-date" min="1900-01-01" max="9999-12-31" required></div><button type="button" id="schedule-today" class="btn btn--ghost btn--small" data-personal-i18n="today">Vandaag</button></div>
+        <p id="schedule-date-error" class="form-error" role="alert" hidden></p>
+        <p id="schedule-progress" class="field__hint" role="status"></p>
+        <p id="schedule-empty" class="empty" data-personal-i18n="noMoments">Geen actieve momenten op deze dag. Je kunt hieronder je herhalingen aanpassen.</p>
+        <ul id="schedule-day-list" class="cards"></ul>
       </div>
-      <ul id="saved-list" class="cards" hidden></ul>
+      <details class="panel schedule-management" open>
+        <summary data-personal-i18n="manageMoments">Alle terugkerende momenten</summary>
+        <p class="field__hint" data-personal-i18n="manageHint">Ook momenten die vandaag niet gepland staan, kun je hier aanpassen.</p>
+        <p id="schedule-all-empty" class="empty" data-personal-i18n="noRecurring">Je hebt nog geen terugkerende momenten.</p>
+        <ul id="schedule-list" class="cards"></ul>
+      </details>
     </section>
 
-    <form id="generator" class="panel" novalidate>
-      <fieldset class="choice">
-        <legend class="choice__legend" data-i18n="ui.situationLegend">Situatie</legend>
-        <div class="pills pills--situation" id="situation-pills">
-          <label class="pill is-selected">
-            <input type="radio" name="situation" value="werk" checked>
-            <span class="pill__label" data-i18n="situations.werk.label">Werk</span>
-          </label>
-          <label class="pill">
-            <input type="radio" name="situation" value="sociaal">
-            <span class="pill__label" data-i18n="situations.sociaal.label">Sociaal</span>
-          </label>
-          <label class="pill">
-            <input type="radio" name="situation" value="familie">
-            <span class="pill__label" data-i18n="situations.familie.label">Familie</span>
-          </label>
-          <label class="pill">
-            <input type="radio" name="situation" value="afspraak">
-            <span class="pill__label" data-i18n="situations.afspraak.label">Afspraak</span>
-          </label>
-        </div>
-      </fieldset>
-
-      <div class="field">
-        <label for="topic" class="field__label" data-i18n="ui.topicLabel">Waar gaat het verzoek over?</label>
-        <p id="topic-hint" class="field__hint" data-i18n="ui.topicHint">Mag leeg blijven. Schrijf kort op wat er van je gevraagd wordt.</p>
-        <textarea id="topic" name="topic" rows="2" maxlength="140" autocomplete="off" autocapitalize="off" spellcheck="true"
-                  aria-describedby="topic-hint topic-count"
-                  placeholder="Bijvoorbeeld: een extra dienst draaien"></textarea>
-        <p id="topic-count" class="field__count"><span id="topic-count-value">0</span>/140</p>
-      </div>
-
-      <fieldset class="choice">
-        <legend class="choice__legend" data-i18n="ui.toneLegend">Toon</legend>
-        <div class="pills pills--tone" id="tone-pills">
-          <label class="pill pill--tone is-selected">
-            <input type="radio" name="tone" value="warm" checked>
-            <span class="pill__label" data-i18n="tones.warm.label">Warm</span>
-            <span class="pill__hint" data-i18n="tones.warm.hint">vriendelijk en begripvol</span>
-          </label>
-          <label class="pill pill--tone">
-            <input type="radio" name="tone" value="kort">
-            <span class="pill__label" data-i18n="tones.kort.label">Kort</span>
-            <span class="pill__hint" data-i18n="tones.kort.hint">één of twee zinnen</span>
-          </label>
-          <label class="pill pill--tone">
-            <input type="radio" name="tone" value="duidelijk">
-            <span class="pill__label" data-i18n="tones.duidelijk.label">Duidelijk</span>
-            <span class="pill__hint" data-i18n="tones.duidelijk.hint">een heldere grens</span>
-          </label>
-        </div>
-      </fieldset>
-
-      <div class="actions">
-        <button type="submit" class="btn btn--primary" id="generate" data-i18n="ui.generate">Geef me woorden</button>
-        <button type="button" class="btn btn--accent" id="surprise" data-i18n="ui.surprise">Verras me</button>
-      </div>
-    </form>
-
-    <section id="results" class="results" aria-labelledby="results-heading">
-      <div class="section-header section-header--stack">
-        <h2 id="results-heading" class="section-title" tabindex="-1" data-i18n="ui.resultsEmptyHeading">Jouw zinnen</h2>
-        <p id="results-sub" class="results__sub" hidden></p>
-        <p id="results-note" class="results__note" hidden></p>
-      </div>
-      <div id="results-empty" class="empty empty--results">
-        <p data-i18n="ui.resultsEmpty">Hier verschijnen straks drie zinnen. Kies een situatie en een toon, en druk op ‘Geef me woorden’. Je hoeft niets in te vullen.</p>
-      </div>
-      <ul id="results-list" class="cards" hidden></ul>
+    <section class="panel personal-section" aria-labelledby="backup-heading">
+      <h2 id="backup-heading" class="section-title" data-personal-i18n="backupHeading">Een kopie voor jezelf</h2>
+      <p class="field__hint" data-personal-i18n="backupIntro">Download je eigen zinnen en dagritme als JSON. Importeer ze later op een ander apparaat. Bestaande items blijven behouden; dubbele items worden overgeslagen. Bewaard en afvinkhistorie zitten niet in dit bestand.</p>
+      <div class="actions"><button type="button" id="personal-export" class="btn btn--ghost" data-personal-i18n="export">JSON exporteren</button><button type="button" id="personal-import-button" class="btn btn--ghost" data-personal-i18n="import">JSON importeren</button></div>
+      <input type="file" id="personal-import" accept=".json,application/json" hidden>
+      <p id="personal-import-result" class="field__hint" role="status" hidden></p>
+      <p class="field__hint" data-personal-i18n="localNote">Alles blijft in deze browser, op dit apparaat. Er zijn geen meldingen wanneer de site gesloten is.</p>
     </section>
+    </div>
   </main>
 
   <footer class="site-footer">
@@ -156,5 +247,7 @@
 
   <script src="phrases.js"></script>
   <script src="main.js"></script>
+  <script src="storage.js"></script>
+  <script src="personal.js"></script>
 </body>
 </html>
