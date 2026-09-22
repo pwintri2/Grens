@@ -222,17 +222,22 @@ try {
   await until('document.getAnimations().every(animation => animation.playState !== "running") && document.querySelector("#toast").hidden');
   await send('Page.captureScreenshot', {format:'png',captureBeyondViewport:true}).then(r => writeFile(join(output,'mobile-320.png'),Buffer.from(r.data,'base64')));
   for (const section of ['custom','schedule']) {
+    await click(`#tab-${section === 'schedule' ? 'rhythm' : 'no'}`);
     await evaluate(`document.querySelector('#${section}').scrollIntoView({block:'start',behavior:'instant'})`);
     await send('Page.captureScreenshot', {format:'png',captureBeyondViewport:false}).then(r => writeFile(join(output,`mobile-320-${section}.png`),Buffer.from(r.data,'base64')));
   }
   await click('#custom-cancel'); await click('#schedule-cancel');
   await evaluate('document.querySelector(".skip-link").focus()');
   const visited = [];
-  for (let tab = 0; tab < 200; tab++) {
-    await key('Tab','Tab',9);
-    const current = await evaluate('({id:document.activeElement.id,skip:document.activeElement.classList.contains("skip-link")})');
-    visited.push(current.id);
-    if (current.skip) break;
+  for (const tabId of ['tab-no', 'tab-rhythm']) {
+    await click(`#${tabId}`);
+    await evaluate('document.querySelector(".skip-link").focus()');
+    for (let tab = 0; tab < 200; tab++) {
+      await key('Tab','Tab',9);
+      const current = await evaluate('({id:document.activeElement.id,skip:document.activeElement.classList.contains("skip-link")})');
+      visited.push(current.id);
+      if (current.skip) break;
+    }
   }
   for (const id of ['custom-add','custom-search','schedule-add','schedule-date','personal-export','personal-import-button']) {
     assert.ok(visited.includes(id), 'Keyboard can reach ' + id);

@@ -410,7 +410,36 @@ svg.icon { flex: none; }
 /* Eigen zinnen en dagritme: bestaande kleuren, focus en mobiele basis. */
 .section-nav { display: flex; flex-wrap: wrap; gap: .4rem .9rem; margin: 0 0 1.4rem; }
 .section-nav a { color: var(--green-700); padding: .5rem 0; font-weight: 600; text-underline-offset: .25rem; }
-.personal-section { margin-top: 2.5rem; display: grid; gap: 1rem; scroll-margin-top: 1.5rem; }
+
+/* Tabbladen (Nee zeggen / Dagritme) */
+.tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  background: var(--cream-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px;
+  margin: 0 0 1.5rem;
+}
+.tab {
+  border: 0;
+  background: transparent;
+  color: var(--green-900);
+  padding: .55rem 1.1rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: .95rem;
+  cursor: pointer;
+  transition: background var(--motion), color var(--motion);
+  font-family: inherit;
+  min-height: 2.5rem;
+}
+.tab.is-active { background: var(--green-700); color: #fff; }
+.tab:focus-visible { box-shadow: var(--focus-ring); position: relative; }
+.tab-panel { display: grid; gap: 1.25rem; }
+
+.personal-section { margin-top: 1.25rem; display: grid; gap: 1rem; scroll-margin-top: 1.5rem; }
 .personal-section .section-header { margin: 0; }
 .personal-section .section-intro { margin-top: -.4rem; }
 .personal-form { border-color: var(--green-500); }
