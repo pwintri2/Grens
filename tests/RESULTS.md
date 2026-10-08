@@ -72,3 +72,25 @@ Behoud van bestaande keys; herladen; datumgebonden afvinken; expliciet leeg ritm
 - De uitbreiding houdt vanilla HTML/CSS/JavaScript en lokale opslag. Geen notificaties, agenda-export, account, backend, analytics of externe API toegevoegd.
 - Geen openstaande implementatiekeuzes voor het eerste deel van Plan2. Eventuele agenda-export/notificaties uit de toelichting zijn vervolgwerk.
 - De bestanden worden in Google Drive bijgewerkt. Publicatie op de bestaande externe webhost is een aparte stap via de uploadinstructies in README.md.
+
+---
+
+# Native verpakkingscontrole
+
+Uitgevoerd op 8 oktober 2026 op Linux met Node.js 22.22.2, pnpm 10.33.2, Rust/Cargo 1.95.0 en Tauri 2.12.1.
+
+## Resultaat
+
+- 18/18 Node-tests geslaagd: 11 opslagtests, 3 tests voor de native brug en 4 regressietests voor mobiele projectaanpassingen en veilige Android-signing.
+- 49/49 browseracceptatiechecks geslaagd, inclusief offlinegebruik, 320px-layouts, toegankelijkheidsnamen, import/export, de lokale privacy-pagina en nul externe verzoeken.
+- `pnpm build`, `pnpm run check:store` (11/11), `cargo check` en `pnpm tauri build --debug --no-bundle` geslaagd.
+- De debug-desktopbinary is gebouwd in `src-tauri/target/debug/grens`.
+- App-iconen voor desktop, iOS en Android zijn uit één originele 1024px-bron gegenereerd; de dekkende Google Play PNG's (icoon en NL/EN feature graphics) hebben de vereiste pixelafmetingen.
+
+## Grenzen
+
+- De definitieve macOS- en iPhone-builds zijn niet op Linux te maken of te ondertekenen; daarvoor zijn een Mac, een actuele Xcode-installatie, Apple Developer-toegang, certificaten, provisioning profiles en echte-apparaattests nodig.
+- De Android SDK/NDK en Android Studio zijn op deze computer niet aanwezig. `tauri android init` stopt daarom aantoonbaar op de ontbrekende SDK. SDK-licenties en een signing key zijn niet namens de eigenaar aangemaakt of geaccepteerd.
+- De nog te genereren `src-tauri/gen/android`- en `src-tauri/gen/apple`-projectbron wordt bewust niet als geheel genegeerd: genereer, inspecteer en commit deze op de juiste buildmachines; alleen schema's, builds, lokale SDK-paden en signingmateriaal blijven buiten Git.
+- `pnpm check:release` faalt daarom nu bewust op precies deze twee ontbrekende platformprojecten (11/13 controles slagen). Na `pnpm android:init` en `pnpm ios:init` controleert dit commando ook target SDK, manifestrechten, iPhone-devicefamilie en de iOS privacyresource.
+- Er is geen build, metadata of privacyverklaring naar Apple, TestFlight, Google Play of een website geüpload. Store-indiening blijft een afzonderlijke, expliciet goed te keuren stap.

@@ -1,0 +1,42 @@
+{
+  "name": "grens",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Grens: een lokale, rustige hulp om woorden te vinden en je dagritme te bewaken.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12 <25"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 1420",
+    "build": "vite build",
+    "check:js": "node --check phrases.js && node --check native.js && node --check main.js && node --check storage.js && node --check personal.js && node --check scripts/check-store-readiness.mjs && node --check scripts/prepare-apple-store.mjs && node --check scripts/prepare-android-signing.mjs && node --check scripts/check-android-signing.mjs && node --check scripts/prepare-mobile-projects.mjs && node --check tests/browser.mjs",
+    "check:store": "node scripts/check-store-readiness.mjs",
+    "check:release": "node scripts/check-store-readiness.mjs --release",
+    "check": "pnpm run check:js && pnpm run check:store && pnpm run build",
+    "test:storage": "node --test tests/storage.test.cjs tests/native.test.cjs tests/mobile-prep.test.cjs",
+    "test:browser": "node tests/browser.mjs",
+    "test": "pnpm run test:storage && pnpm run test:browser",
+    "tauri": "tauri",
+    "app:dev": "tauri dev",
+    "app:build": "tauri build",
+    "android:init": "tauri android init && node scripts/prepare-mobile-projects.mjs android",
+    "android:build": "node scripts/check-android-signing.mjs && tauri android build --aab",
+    "ios:init": "tauri ios init && node scripts/prepare-mobile-projects.mjs ios",
+    "ios:open": "tauri ios build --open",
+    "mobile:prepare": "node scripts/prepare-mobile-projects.mjs all",
+    "store:apple:prepare": "node scripts/prepare-apple-store.mjs",
+    "store:android:prepare": "node scripts/prepare-android-signing.mjs"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.12.1",
+    "@tauri-apps/plugin-clipboard-manager": "2.4.1",
+    "@tauri-apps/plugin-dialog": "2.8.1",
+    "@tauri-apps/plugin-fs": "2.6.0"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "2.12.1",
+    "vite": "8.3.4"
+  }
+}

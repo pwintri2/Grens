@@ -35,7 +35,7 @@
       localNote: 'Alles blijft in deze browser, op dit apparaat. Er zijn geen meldingen wanneer de site gesloten is.',
       importSuccess: '{phrases} eigen zinnen en {moments} momenten toegevoegd. Dubbele items zijn samengevoegd.',
       importInvalid: 'Dit bestand kon niet worden geïmporteerd. Kies een geldige Grens-export (versie 1, maximaal 1 MB). Je gegevens zijn niet gewijzigd.',
-      exportReady: 'Je JSON-bestand is klaar om te downloaden.',
+      exportReady: 'Je JSON-back-up is opgeslagen.',
       exportError: 'Exporteren is niet gelukt. Een back-up mag maximaal 1 MiB groot zijn. Je gegevens staan nog in deze browser.',
       storageWarning: 'Sommige lokale gegevens konden niet veilig worden gelezen. Ze zijn niet overschreven. Bewaar eventuele originele gegevens voordat je browseropslag wist.',
       storageError: 'Opslaan is niet gelukt. Je wijziging is niet opgeslagen. Controleer de beschikbare browseropslag en probeer opnieuw.',
@@ -76,7 +76,7 @@
       localNote: 'Everything stays in this browser, on this device. There are no notifications when the site is closed.',
       importSuccess: 'Added {phrases} personal phrases and {moments} moments. Duplicates were merged.',
       importInvalid: 'Could not import this file. Choose a valid Grens export (version 1, up to 1 MB). Your data has not changed.',
-      exportReady: 'Your JSON file is ready to download.',
+      exportReady: 'Your JSON backup has been saved.',
       exportError: 'Could not export. A backup can be up to 1 MiB. Your data is still in this browser.',
       storageWarning: 'Some local data could not be read safely. It has not been overwritten. Keep any original data before clearing browser storage.',
       storageError: 'Could not save. Your change has not been saved. Check available browser storage and try again.',
@@ -199,7 +199,12 @@
       try { ok = document.execCommand('copy'); } catch (error) { /* Show actionable failure. */ }
       field.remove(); focus(previous); return ok;
     }
-    var promise = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text).then(function () { return true; }, fallback) : Promise.resolve(fallback());
+    var promise;
+    if (window.GrensNative && window.GrensNative.isNative) {
+      promise = window.GrensNative.copyText(text).then(function (handled) { return handled || fallback(); }, fallback);
+    } else {
+      promise = navigator.clipboard && navigator.clipboard.writeText ? navigator.clipboard.writeText(text).then(function () { return true; }, fallback) : Promise.resolve(fallback());
+    }
     promise.then(function (ok) { notify(t(ok ? 'copied' : 'copyFailed')); });
   }
 
@@ -408,29 +413,52 @@
   ['custom-form', 'schedule-form'].forEach(function (id) {
     $(id).addEventListener('keydown', function (event) { if (event.key === 'Escape') { event.preventDefault(); if (id === 'custom-form') closePhrase(); else closeMoment(); } });
   });
-  $('personal-export').addEventListener('click', function () {
+  $('personal-export').addEventListener('click', async function () {
     try {
-      var blob = new Blob([store.exportData(data.custom, data.schedule)], { type: 'application/json' });
+      var contents = store.exportData(data.custom, data.schedule);
+      var fileName = 'grens-' + localDate(new Date()) + '.json';
+      if (window.GrensNative && window.GrensNative.isNative) {
+        var nativeResult = await window.GrensNative.saveTextFile(fileName, contents);
+        if (nativeResult.handled) {
+          if (nativeResult.saved) notify(t('exportReady'));
+          return;
+        }
+      }
+      var blob = new Blob([contents], { type: 'application/json' });
       var url = URL.createObjectURL(blob); var link = node('a'); link.href = url; link.download = 'grens-' + localDate(new Date()) + '.json';
       document.body.appendChild(link); link.click(); link.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
       notify(t('exportReady'));
     } catch (error) { notify(t('exportError')); }
   });
-  $('personal-import-button').addEventListener('click', function () { $('personal-import').click(); });
-  $('personal-import').addEventListener('change', async function () {
-    var file = this.files[0]; if (!file) return;
+  async function importBackup(text) {
     noticeKey = ''; noticeVars = null;
     $('personal-import-result').textContent = ''; $('personal-import-result').hidden = true;
-    $('personal-import-button').disabled = true;
     try {
-      if (file.size > 1024 * 1024) throw new Error('too-large');
-      var merged = store.importData(await file.text(), data.custom, data.schedule);
+      var merged = store.importData(text, data.custom, data.schedule);
       if (!commit({ custom: merged.custom, schedule: merged.schedule })) return;
       renderCustom(); renderSchedule();
       noticeKey = 'importSuccess'; noticeVars = { phrases: merged.addedCustom, moments: merged.addedSchedule };
     } catch (error) { noticeKey = 'importInvalid'; noticeVars = null; }
-    finally { this.value = ''; $('personal-import-button').disabled = false; }
     $('personal-import-result').textContent = t(noticeKey, noticeVars); $('personal-import-result').hidden = false; speak(t(noticeKey, noticeVars));
+  }
+  $('personal-import-button').addEventListener('click', async function () {
+    if (!window.GrensNative || !window.GrensNative.isNative) { $('personal-import').click(); return; }
+    this.disabled = true;
+    try {
+      var result = await window.GrensNative.openTextFile(1024 * 1024);
+      if (!result.handled) $('personal-import').click();
+      else if (result.opened) await importBackup(result.text);
+    } catch (error) { await importBackup(''); }
+    finally { this.disabled = false; }
+  });
+  $('personal-import').addEventListener('change', async function () {
+    var file = this.files[0]; if (!file) return;
+    $('personal-import-button').disabled = true;
+    try {
+      if (file.size > 1024 * 1024) throw new Error('too-large');
+      await importBackup(await file.text());
+    } catch (error) { await importBackup(''); }
+    finally { this.value = ''; $('personal-import-button').disabled = false; }
   });
   document.addEventListener('grens:language', translate);
   window.addEventListener('storage', function (event) {

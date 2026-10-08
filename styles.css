@@ -31,7 +31,11 @@
 /* Het hidden-attribuut wint altijd van display-regels hieronder. */
 [hidden] { display: none !important; }
 
-html { -webkit-text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+  min-height: 100%;
+  overscroll-behavior-y: none;
+}
 
 body {
   margin: 0;
@@ -42,6 +46,10 @@ body {
   background: var(--cream);
   background-image: radial-gradient(60rem 30rem at 50% -10rem, var(--green-100), transparent 70%);
   min-height: 100vh;
+  min-height: 100dvh;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  -webkit-tap-highlight-color: rgba(196, 101, 74, 0.18);
 }
 
 h1, h2, h3, p, ul, fieldset { margin: 0; }
@@ -78,7 +86,7 @@ svg.icon { flex: none; }
 /* Lay-out */
 .container { width: 100%; max-width: 42rem; margin: 0 auto; padding: 0 1rem 3rem; }
 
-.site-header { padding: 0.75rem 0; }
+.site-header { padding: max(0.75rem, env(safe-area-inset-top)) 0 0.75rem; }
 .site-header__inner {
   width: 100%; max-width: 42rem; margin: 0 auto; padding: 0 1rem;
   display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
@@ -359,12 +367,19 @@ svg.icon { flex: none; }
 
 /* Voettekst en melding */
 .site-footer {
-  width: 100%; max-width: 42rem; margin: 0 auto; padding: 0 1rem 2.5rem;
+  width: 100%; max-width: 42rem; margin: 0 auto; padding: 0 1rem max(2.5rem, env(safe-area-inset-bottom));
   color: var(--ink-muted);
   font-size: 0.85rem;
   display: grid;
   gap: 0.25rem;
 }
+.site-footer a { color: var(--green-700); font-weight: 600; text-underline-offset: 0.2rem; }
+
+.native-app body { user-select: none; }
+.native-app input,
+.native-app textarea,
+.native-app select,
+.native-app .card__text { user-select: text; }
 
 .toast {
   position: fixed;

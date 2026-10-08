@@ -4,9 +4,9 @@
    Each run uses an isolated temporary browser profile; no existing browser data. */
 import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
-import {mkdir, mkdtemp, rm, readFile, writeFile} from 'node:fs/promises';
+import {access, mkdir, mkdtemp, readdir, rm, readFile, writeFile} from 'node:fs/promises';
 import {setTimeout as delay} from 'node:timers/promises';
-import {tmpdir} from 'node:os';
+import {homedir, platform, tmpdir} from 'node:os';
 import {join, dirname} from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 
@@ -14,7 +14,29 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const output = process.env.GRENS_QA_DIR || join(tmpdir(), 'grens-qa');
 await mkdir(output, {recursive: true});
 const profile = await mkdtemp(join(output, 'browser-profile-'));
-const chrome = process.env.CHROME_BIN || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+async function executable(path) {
+  try { await access(path); return path; } catch { return null; }
+}
+async function findChrome() {
+  const explicit = process.env.CHROME_BIN;
+  if (explicit) return explicit;
+  const candidates = platform() === 'darwin'
+    ? ['/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/Applications/Chromium.app/Contents/MacOS/Chromium']
+    : ['/usr/bin/google-chrome', '/usr/bin/google-chrome-stable', '/usr/bin/chromium', '/usr/bin/chromium-browser'];
+  for (const candidate of candidates) { if (await executable(candidate)) return candidate; }
+  const cache = join(homedir(), '.cache', 'ms-playwright');
+  try {
+    const versions = (await readdir(cache)).filter(name => name.startsWith('chromium-')).sort().reverse();
+    for (const version of versions) {
+      for (const relative of ['chrome-linux64/chrome', 'chrome-linux/chrome']) {
+        const candidate = join(cache, version, relative);
+        if (await executable(candidate)) return candidate;
+      }
+    }
+  } catch {}
+  throw new Error('Geen Chrome/Chromium gevonden. Stel CHROME_BIN in.');
+}
+const chrome = await findChrome();
 const proc = spawn(chrome, [
   '--headless=new', '--remote-debugging-port=0', '--remote-debugging-address=127.0.0.1',
   '--no-first-run', '--no-default-browser-check', '--disable-background-networking',
@@ -272,6 +294,10 @@ try {
   await check('Custom edits work with unrelated corrupt schedule', `document.querySelector('#custom-list').textContent.includes('Healthy collection can still be edited') && localStorage.getItem('neezegger.schedule.v1') === '{broken'`);
   await click(itemSelector('#custom-list',independentId,'[data-action="remove"]'));
   await check('Custom delete works with unrelated corrupt schedule', `!document.querySelector(${JSON.stringify(itemSelector('#custom-list',independentId))}) && localStorage.getItem('neezegger.schedule.v1') === '{broken'`);
+  await send('Page.navigate', {url:pathToFileURL(join(root, 'privacy.html')).href});
+  await until('document.readyState === "complete" && !!document.querySelector("#nederlands")');
+  await check('Privacy page loads its local stylesheet offline', 'getComputedStyle(document.body).lineHeight !== "normal" && getComputedStyle(document.documentElement).backgroundColor === "rgb(247, 242, 232)"');
+  await check('Privacy page has a local return route and no external links', 'document.querySelector("a[href=\\"index.html\\"]") && !document.querySelector("a[href^=\\"http:\\"], a[href^=\\"https:\\"]")');
   const externalRequests = events.filter(e => e.method === 'Network.requestWillBeSent' && /^https?:/.test(e.params.request.url));
   assert.deepEqual(externalRequests, [], 'Application sends no external requests');
   report.push('Application sends no external requests');

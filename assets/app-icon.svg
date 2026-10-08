@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1024"
+     height="1024"
+     viewBox="0 0 1024 1024"
+     role="img"
+     aria-labelledby="icon-title icon-description">
+  <title id="icon-title">Grens app-icoon</title>
+  <desc id="icon-description">Een spreekballon met een duidelijke grens, veilig omsloten door een schild.</desc>
+
+  <rect width="1024" height="1024" fill="#f7f2e8"/>
+
+  <path fill="#163b2d"
+        d="M512 118
+           C608 184 708 216 814 230
+           V474
+           C814 681 694 833 512 900
+           C330 833 210 681 210 474
+           V230
+           C316 216 416 184 512 118
+           Z"/>
+
+  <path fill="#f7f2e8"
+        d="M392 282
+           H632
+           C672 282 704 314 704 354
+           V548
+           C704 588 672 620 632 620
+           H526
+           L408 718
+           V620
+           H392
+           C352 620 320 588 320 548
+           V354
+           C320 314 352 282 392 282
+           Z"/>
+
+  <rect x="374" y="356" width="36" height="190" rx="18" fill="#c4654a"/>
+  <path d="M464 380 H626 M464 452 H602 M464 524 H566"
+        fill="none"
+        stroke="#163b2d"
+        stroke-width="30"
+        stroke-linecap="round"/>
+</svg>

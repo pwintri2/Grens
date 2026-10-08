@@ -13,10 +13,10 @@
   /* ---------- Teksten van de interface ---------- */
   var UI = {
     nl: {
-      'meta.title': 'Nee-zegger Script Generator',
+      'meta.title': 'Grens · Nee-zegger',
       'meta.description': 'Korte, vriendelijke zinnen om nee te zeggen zonder uitgebreide uitleg of schuldgevoel.',
       'ui.skip': 'Naar de inhoud',
-      'ui.brand': 'Nee-zegger',
+      'ui.brand': 'Grens',
       'ui.savedButton': 'Bewaard',
       'ui.savedButtonAria': 'Bewaarde zinnen, {n} bewaard',
       'ui.title': 'Een nee mag ook een hele zin zijn.',
@@ -49,6 +49,7 @@
       'ui.close': 'Sluiten',
       'ui.footerNote': 'Dit is een hulpmiddel om woorden te vinden, geen therapie of medisch advies.',
       'ui.footerLocal': 'Bewaarde zinnen blijven op dit apparaat. Er wordt niets verstuurd.',
+      'ui.privacy': 'Privacy',
       'ui.langAnnounce': 'Taal: Nederlands',
       'ui.contentMissing': 'De zinnen konden niet worden geladen. Controleer of phrases.js naast index.html staat.',
       'ui.tabsLabel': 'Onderdelen',
@@ -70,10 +71,10 @@
       'situations.afspraak.placeholder': 'Bijvoorbeeld: een afspraak verzetten'
     },
     en: {
-      'meta.title': 'No-Sayer Script Generator',
+      'meta.title': 'Grens · No-Sayer',
       'meta.description': 'Short, friendly phrases for saying no without long explanations or guilt.',
       'ui.skip': 'Skip to content',
-      'ui.brand': 'No-Sayer',
+      'ui.brand': 'Grens',
       'ui.savedButton': 'Saved',
       'ui.savedButtonAria': 'Saved phrases, {n} saved',
       'ui.title': "'No' can be a complete sentence.",
@@ -106,6 +107,7 @@
       'ui.close': 'Close',
       'ui.footerNote': 'This is a tool for finding words, not therapy or medical advice.',
       'ui.footerLocal': 'Saved phrases stay on this device. Nothing is sent anywhere.',
+      'ui.privacy': 'Privacy',
       'ui.langAnnounce': 'Language: English',
       'ui.contentMissing': 'The phrases could not be loaded. Check that phrases.js sits next to index.html.',
       'ui.tabsLabel': 'Sections',
@@ -617,6 +619,14 @@
 
   function copyText(text) {
     var done = function (ok) { showToast(ok ? t('ui.copied') : t('ui.copyFailed')); };
+    if (window.GrensNative && window.GrensNative.isNative) {
+      window.GrensNative.copyText(text).then(function (handled) {
+        if (handled) done(true);
+        else if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(copyFallback(text)); });
+        else done(copyFallback(text));
+      }, function () { done(copyFallback(text)); });
+      return;
+    }
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(copyFallback(text)); });
       return;
