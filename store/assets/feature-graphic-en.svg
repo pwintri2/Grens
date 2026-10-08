@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1024"
+     height="500"
+     viewBox="0 0 1024 500"
+     role="img"
+     aria-labelledby="feature-title feature-description">
+  <title id="feature-title">Grens feature graphic</title>
+  <desc id="feature-description">Grens. Say no. In your own way. With the protected-speech symbol of the app.</desc>
+
+  <rect width="1024" height="500" fill="#f7f2e8"/>
+  <rect x="84" y="129" width="14" height="146" rx="7" fill="#c4654a"/>
+  <text x="128" y="218" fill="#163b2d"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="96" font-weight="700" letter-spacing="-2">Grens</text>
+  <text x="132" y="276" fill="#163b2d"
+        font-family="Arial, Helvetica, sans-serif"
+        font-size="30" font-weight="600">Say no. In your own way.</text>
+
+  <path fill="#163b2d"
+        d="M810 62 C854 92 901 107 949 113 V228
+           C949 326 894 398 810 430 C726 398 671 326 671 228
+           V113 C719 107 766 92 810 62 Z"/>
+  <path fill="#f7f2e8"
+        d="M754 142 H866 C886 142 902 158 902 178 V267
+           C902 287 886 303 866 303 H818 L762 350 V303 H754
+           C734 303 718 287 718 267 V178 C718 158 734 142 754 142 Z"/>
+  <rect x="744" y="177" width="18" height="91" rx="9" fill="#c4654a"/>
+  <path d="M788 189 H866 M788 223 H854 M788 257 H836"
+        fill="none" stroke="#163b2d" stroke-width="14" stroke-linecap="round"/>
+</svg>

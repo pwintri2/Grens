@@ -25,8 +25,8 @@ De taalkeuze (NL/EN) staat rechtsboven. Nederlands is de standaard; de keuze wor
 
 ## Kenmerken
 
-- Alleen HTML, CSS en JavaScript. Geen backend, geen build-stap, geen externe bibliotheken of lettertypen.
-- Werkt direct door `index.html` te openen, ook offline.
+- De webbron blijft gewone HTML, CSS en JavaScript, zonder backend, externe API's, analytics, advertenties, externe bibliotheken of lettertypen.
+- Werkt direct door `index.html` te openen, ook offline; dezelfde bron wordt met Tauri 2 verpakt voor macOS, iPhone en Android.
 - 72 zinnen per taal (4 situaties × 3 tonen × 6), elk in een algemene vorm en een vorm met jouw tekst erin.
 - Toegankelijk: echte formulierelementen, labels, zichtbare focus, voldoende contrast, meldingen voor schermlezers, ondersteuning voor verminderde beweging en hoog contrast.
 - Mobile-first en bruikbaar vanaf 320 px breed.
@@ -71,6 +71,30 @@ python3 -m http.server 8000
 
 Open daarna `http://localhost:8000`.
 
+## Native app voor macOS, iPhone en Android
+
+De native uitvoering gebruikt één Tauri 2-codebasis met app-ID `nl.wintrip.grens`. Klembord, JSON importeren en JSON exporteren gebruiken in de app de systeemfuncties van het apparaat; in een gewone browser blijft de bestaande veilige fallback werken. De app vraagt geen camera, microfoon, locatie, contacten, tracking, meldingen of algemene netwerktoegang.
+
+Gebruik de vastgelegde Node- en pnpm-versies en voer eerst alle controles uit:
+
+```bash
+cd /home/pwintri2/grens
+nvm use
+corepack pnpm install --frozen-lockfile
+pnpm check
+pnpm test
+```
+
+De desktopapp voor het huidige besturingssysteem start je met `pnpm app:dev`; een lokale releasebuild maak je met `pnpm app:build`. Platformspecifieke distributiebestanden moeten op het betreffende ondersteunde buildsysteem worden gemaakt:
+
+- **macOS / Mac App Store:** bouw op een Mac met een actuele volledige Xcode-installatie, Apple Developer-lidmaatschap, certificaten en provisioning profile. `pnpm store:apple:prepare` maakt na het zetten van de vereiste omgevingsvariabelen een genegeerde lokale storeconfiguratie.
+- **iPhone / App Store:** voer op een Mac eerst `pnpm ios:init` uit en daarna `pnpm ios:open`. De init-stap maakt het project iPhone-only en voegt het privacy-manifest als root-resource toe. Ondertekenen, archiveren en testen op een echte iPhone gebeurt in Xcode.
+- **Android / Google Play:** installeer JDK, Android SDK/NDK en de vereiste Rust-targets en voer `pnpm android:init` uit. De init-stap verwijdert onbedoelde Android TV-ondersteuning, houdt internettoegang buiten de release en koppelt release-signing. Maak daarna buiten Git de signingconfiguratie met `pnpm store:android:prepare`; `pnpm android:build` weigert te bouwen als die ontbreekt.
+
+Zodra beide gegenereerde platformprojecten aanwezig en gecommit zijn, controleert `pnpm check:release` ook de target SDK, Android-manifesten, iPhone-devicefamilie en privacyresource. De gewone `pnpm check` blijft bruikbaar vóórdat de platformtoolchains zijn geïnstalleerd.
+
+De volledige checklist voor signing, privacyverklaringen, screenshots, echte-apparaattests en store-indiening staat in [`store/README.md`](store/README.md). Er is bewust niets naar Apple, TestFlight of Google Play geüpload.
+
 ## Bestanden
 
 | Bestand | Inhoud |
@@ -78,9 +102,12 @@ Open daarna `http://localhost:8000`.
 | `index.html` | Structuur van de pagina |
 | `styles.css` | Vormgeving (crème, donkergroen, terracotta, zachte groentinten) |
 | `main.js` | Bestaande generator en taalwissel; taal-event voor de uitbreiding |
+| `native.js` | Veilige brug naar native klembord- en bestandsfuncties, met browserfallback |
 | `personal.js` | Eigen zinnen, dagritme, formulieren, NL/EN en import/export |
 | `storage.js` | Versiecontrole, validatie, lokale opslag en samenvoegen van back-ups |
-| `tests/` | Opslagtests en browseracceptatietests zonder pakketten |
+| `src-tauri/` | Rust-shell, minimale permissies, privacy-manifesten en platformconfiguratie |
+| `store/` | Tweetalige storemetadata, publicatiechecklist en artwork |
+| `tests/` | Opslag-, native-brug- en browseracceptatietests |
 | `phrases.js` | Zinnenbank en voorbeeldverzoeken in het Nederlands en Engels |
 | `docs/` | Schermafbeeldingen voor deze README |
 
@@ -88,18 +115,20 @@ Zinnen toevoegen of aanpassen doe je in `phrases.js`. Elke zin heeft een `generi
 
 ## Controleren
 
-Er is geen buildproces of package-installatie nodig. Met Node.js 22 of nieuwer:
+De losse website heeft geen buildproces nodig. Voor de volledige web- en native broncontrole gebruik je Node.js 22.22.2 en pnpm 10.33.2:
 
 ```bash
-node --test tests/storage.test.cjs
-node tests/browser.mjs
+pnpm install --frozen-lockfile
+pnpm check
+pnpm test
+cargo check --locked --manifest-path src-tauri/Cargo.toml
 ```
 
-De browsertest gebruikt een geïsoleerd tijdelijk Chrome-profiel. Op macOS wordt de gebruikelijke Chrome-locatie gebruikt; stel elders `CHROME_BIN` in op je Chrome/Chromium-programma. De test gebruikt Node's ingebouwde WebSocket. Resultaten en schermafbeeldingen staan in de tijdelijke map `grens-qa` (aanpasbaar met `GRENS_QA_DIR`). Zie `tests/RESULTS.md` voor de uitgevoerde controles en hun grenzen.
+De browsertest zoekt Chrome/Chromium op de gebruikelijke macOS- en Linux-locaties en gebruikt een geïsoleerd tijdelijk profiel. Stel `CHROME_BIN` in als de browser elders staat. Resultaten en schermafbeeldingen staan in de tijdelijke map `grens-qa` (aanpasbaar met `GRENS_QA_DIR`). Zie `tests/RESULTS.md` voor de uitgevoerde controles en hun grenzen.
 
 ## Op de website zetten
 
-Upload `index.html`, `styles.css`, `phrases.js`, `main.js`, `storage.js` en `personal.js` naar de map `grens` van de webruimte, zodat `index.html` op `https://philip-wintrip.com/grens/index.html` staat. Meer is niet nodig.
+Voer `pnpm build` uit en upload de inhoud van `dist/` naar de map `grens` van de webruimte, zodat `index.html` op `https://philip-wintrip.com/grens/index.html` staat. Publiceer `privacy.html` mee voordat je de privacy-URL bij een appstore opgeeft.
 
 ## Goed om te weten
 
@@ -132,8 +161,8 @@ The language switch (NL/EN) is in the top right. Dutch is the default; your choi
 
 ## Features
 
-- Plain HTML, CSS and JavaScript. No backend, no build step, no external libraries or fonts.
-- Works by simply opening `index.html`, also offline.
+- The web source remains plain HTML, CSS and JavaScript, with no backend, external API, analytics, advertising, external libraries or fonts.
+- It works by simply opening `index.html`, also offline; Tauri 2 packages that same source for macOS, iPhone and Android.
 - 72 phrases per language (4 situations × 3 tones × 6), each in a generic form and a form with your text inserted.
 - Accessible: real form controls, labels, visible focus, sufficient contrast, screen-reader announcements, support for reduced motion and high contrast.
 - Mobile-first and usable from 320 px wide.
@@ -168,6 +197,14 @@ python3 -m http.server 8000
 
 Then open `http://localhost:8000`.
 
+## Native macOS, iPhone and Android apps
+
+The native build uses one Tauri 2 codebase with app ID `nl.wintrip.grens`. Inside the app, clipboard and JSON import/export use platform-native APIs; the safe browser fallbacks remain available on the website. The app requests no camera, microphone, location, contacts, tracking, notification or general release-network permission.
+
+Run `nvm use`, `corepack pnpm install --frozen-lockfile`, `pnpm check` and `pnpm test` first. Use `pnpm app:dev` for the desktop app on the current platform. macOS and iPhone distribution builds require a Mac with current Xcode and owner-provided Apple signing. Android requires a JDK, Android SDK/NDK, Rust Android targets and owner-provided signing; initialise it with `pnpm android:init` and create the AAB with `pnpm android:build`. After both generated platform projects have been committed, `pnpm check:release` verifies their release-specific settings.
+
+See [`store/README.md`](store/README.md) for the signing, privacy, screenshots, real-device testing and submission checklist. Nothing has been uploaded to Apple, TestFlight or Google Play.
+
 ## Files
 
 | File | Contents |
@@ -175,9 +212,12 @@ Then open `http://localhost:8000`.
 | `index.html` | Page structure |
 | `styles.css` | Styling (cream, dark green, terracotta, soft greens) |
 | `main.js` | Existing generator and language-change event |
+| `native.js` | Safe native clipboard/file bridge with browser fallbacks |
 | `personal.js` | Personal phrases, daily rhythm, forms, NL/EN and backup UI |
 | `storage.js` | Versioning, validation, storage and backup merging |
-| `tests/` | Dependency-free storage and browser acceptance tests |
+| `src-tauri/` | Rust shell, minimal permissions, privacy manifests and platform configuration |
+| `store/` | Bilingual store metadata, release checklist and artwork |
+| `tests/` | Storage, native bridge and browser acceptance tests |
 | `phrases.js` | Phrase bank and example requests in Dutch and English |
 | `docs/` | Screenshots for this README |
 
@@ -185,11 +225,11 @@ To add or change phrases, edit `phrases.js`. Each phrase has a `generic` variant
 
 ## Checking changes
 
-With Node.js 22 or later, run `node --test tests/storage.test.cjs` and `node tests/browser.mjs`. The browser test launches an isolated temporary Chrome profile. Set `CHROME_BIN` if Chrome is outside the default macOS location. Reports and screenshots go to the temporary `grens-qa` folder, configurable through `GRENS_QA_DIR`. See `tests/RESULTS.md` for the checks performed and their limits.
+With Node.js 22.22.2 and pnpm 10.33.2, run `pnpm install --frozen-lockfile`, `pnpm check`, `pnpm test` and `cargo check --locked --manifest-path src-tauri/Cargo.toml`. The browser test launches an isolated temporary Chrome profile and finds common macOS/Linux installations automatically; set `CHROME_BIN` if needed. Reports and screenshots go to the temporary `grens-qa` folder, configurable through `GRENS_QA_DIR`. See `tests/RESULTS.md` for the checks performed and their limits.
 
 ## Putting it on the website
 
-Upload `index.html`, `styles.css`, `phrases.js`, `main.js`, `storage.js` and `personal.js` into the `grens` folder on the web host, so that `index.html` ends up at `https://philip-wintrip.com/grens/index.html`. Nothing else is needed.
+Run `pnpm build` and upload the contents of `dist/` to the `grens` folder on the web host, so that `index.html` ends up at `https://philip-wintrip.com/grens/index.html`. Publish `privacy.html` with it before using the privacy URL in either app store.
 
 ## Good to know
 

@@ -2,11 +2,15 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#f7f2e8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
   <meta name="description" content="Korte, vriendelijke zinnen om nee te zeggen zonder uitgebreide uitleg of schuldgevoel.">
-  <title>Nee-zegger Script Generator</title>
+  <title>Grens · Nee-zegger</title>
+  <link rel="icon" href="assets/app-icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -217,6 +221,7 @@
   <footer class="site-footer">
     <p data-i18n="ui.footerNote">Dit is een hulpmiddel om woorden te vinden, geen therapie of medisch advies.</p>
     <p data-i18n="ui.footerLocal">Bewaarde zinnen blijven op dit apparaat. Er wordt niets verstuurd.</p>
+    <p><a href="privacy.html" data-i18n="ui.privacy">Privacy</a></p>
   </footer>
 
   <div id="announce" class="visually-hidden" role="status" aria-live="polite"></div>
@@ -246,6 +251,7 @@
   </template>
 
   <script src="phrases.js"></script>
+  <script src="native.js"></script>
   <script src="main.js"></script>
   <script src="storage.js"></script>
   <script src="personal.js"></script>
